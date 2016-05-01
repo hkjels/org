@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$' '
+
+version="0.0.1"
+cmd=$(basename $0)
+
+#
+# Find sub-commands
+#
+
+findSubCmds() {
+  local subcmds=""
+  for dir in ${PATH//:/ }; do
+    subcmds="$subcmds $(find $dir -name "$cmd-*" 2> /dev/null)"
+  done
+  echo "$subcmds" | tr ' ' '\n' | sort | uniq | xargs -L1 basename
+}
+
+#
+# List sub-commands
+#
+
+listSubCmds(){
+  local subcmds=$(findSubCmds)
+  for subcmd in $subcmds; do
+    local shortusage=$($subcmd __shortusage)
+    [[ -z "$shortusage" ]] && shortusage="$subcmd"
+    shortusage=${shortusage/$cmd-/}
+    printf "%-3s %-25s %s\n" '' "$shortusage" "$($subcmd __description)"
+  done
+}
+
+#
+# Output usage
+#
+
+usage() {
+  cat << EOT
+
+  Usage: $cmd command [options]
+
+  Commands:
+
+    help <command>            output usage for a specific command
+$(listSubCmds)
+
+  Options:
+
+    -h, --help        output usage information
+    -V, --version     output version number
+
+EOT
+}
+
+#
+# Missing command
+#
+
+missingCmd() {
+  echo
+  echo "    $cmd: '$1' is either misspelled or not installed."
+  echo
+}
+
+
+#
+# Parse arguments
+#
+
+args=""
+subcmd=""
+while test $# -ne 0; do
+  arg=$1; shift
+  case $arg in
+    help)
+      [ -n $1 ] && subcmd="$cmd-$1"; shift
+      args="--help"
+      break;
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -V|--version)
+      echo $version
+      exit 0
+      ;;
+    *)
+      subcmd="$cmd-$arg"
+      args="$args $@"; shift
+      break;
+      ;;
+  esac
+done
+
+#
+# Sub-command
+#
+
+if [[ $($subcmd 2>&1) =~ "command not found" ]]; then
+  missingCmd "${subcmd##*\-}"
+  exit $?
+fi
+
+$subcmd $args
+

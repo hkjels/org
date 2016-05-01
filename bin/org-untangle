@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+
+cmd=$(basename $0)
+header=true
+subdir=
+output=
+
+#
+# Output usage
+#
+
+usage() {
+  cat << EOT
+
+  Usage: ${cmd/-/ } [options] <path ...>
+
+  Options:
+
+    -h, --help          output usage information
+    -o, --output        print to file instead of stdout
+    -s, --subdir        root of entanglement
+
+    --no-header         skip the global properties-header
+
+EOT
+}
+
+#
+# Output org-mode header
+#
+
+org-header() {
+  cat <<EOT
+  :PROPERTIES:
+  #+EXPORT_EXCLUDE_TAGS: noexport
+  #+PROPERTY:            mkdirp yes
+  #+PROPERTY:            noweb yes
+  :END:
+
+EOT
+}
+
+#
+# Output language by extension
+#
+
+language() {
+  local filename=$(basename "$1")
+  local extension="${filename##*.}"
+
+  declare -A languages
+  languages=(
+    [c]=c
+    [clj]=clojure
+    [cljs]=clojurescript
+    [edn]=edn
+    [erlang]=erl
+    [cpp]=c++
+    [css]=css
+    [haskell]=hs
+    [js]=javascript
+    [less]=less
+    [md]=markdown
+    [python]=py
+    [ryby]=rb
+    [sass]=sass
+    [sh]=shell
+  )
+
+  echo ${languages["$extension"]}
+}
+
+#
+# Output org-mode source-block
+#
+
+org-src() {
+  local filename=$(basename "$1")
+  local lang=$(language $filename)
+  echo "#BEGIN_SRC $lang :tangle $subdir$file"
+  cat $file
+  echo "#END_SRC"
+  echo
+}
+
+#
+# Output assembled org-mode from a directory recursively
+#
+
+untangle() {
+  local files=$@
+  [[ $header = true ]] && org-header
+  echo "* Source         :noexport:"
+  echo
+  for file in $files; do
+    org-src "$file"
+  done
+}
+
+#
+# Parse arguments
+#
+
+while test $# -ne 0; do
+  arg=$1; shift
+  case $arg in
+    __shortusage)
+      echo "$cmd [options]"
+      exit 0
+      ;;
+    __description)
+      echo "Assembles an org-file from a list of paths"
+      exit 0
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -o|--output)
+      output=$1; shift
+      ;;
+    -s|--subdir)
+      # Ensure that sub-directory ends with a trailing slash
+      subdir="${1%/}/"; shift
+      ;;
+    --no-header)
+      header=false
+      ;;
+    *)
+      if [[ -n $output ]]; then
+        $(untangle $arg > $output)
+      else
+        untangle $arg
+      fi
+      break;
+      ;;
+  esac
+done

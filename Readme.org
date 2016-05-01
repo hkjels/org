@@ -1,0 +1,16 @@
+:PROPERTIES:
+#+TITLE: Suite of org-mode tools
+:END:
+
+I've been using ~org-mode~ a fair amount lately and think I'll convert some of
+my prior work into org-files. To that end, I'm creating a few tools to ease the
+development of org-files.
+
+For now, there's only the command ~org untangle~. All it does is take a bunch of
+files as input and it outputs org-mode with tangling-headers.
+
+Here you see how you could assemble an org-file from this very repository and
+output that to ~org.org~.
+#+BEGIN_SRC sh
+org untangle "$(find bin) Makefile" > org.org
+#+END_SRC
