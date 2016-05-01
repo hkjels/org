@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+
+cmd=$(basename $0)
+header=true
+subdir=
+output=
+
+#
+# Output usage
+#
+
+usage() {
+  cat << EOT
+
+  Usage: ${cmd/-/ } [options] <path ...>
+
+  Options:
+
+    -h, --help          output usage information
+
+EOT
+}
+
+#
+# Simply batch-entangle specified files
+#
+
+tangle() {
+	emacs --batch --no-init-file --eval "(require 'org)" --visit "$@" --funcall org-babel-tangle > /dev/null 2>&1
+}
+
+#
+# Parse arguments
+#
+
+while test $# -ne 0; do
+  arg=$1; shift
+  case $arg in
+    __shortusage)
+      echo "$cmd [options]"
+      exit 0
+      ;;
+    __description)
+      echo "Entangles an org-file"
+      exit 0
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      tangle $arg
+      break;
+      ;;
+  esac
+done
