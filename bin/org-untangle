@@ -80,9 +80,9 @@ language() {
 org-src() {
   local filename=$(basename "$1")
   local lang=$(language $filename) || ""
-  echo "#BEGIN_SRC $lang :tangle $subdir$file"
+  echo "#+BEGIN_SRC $lang :tangle $subdir$file"
   cat $file
-  echo "#END_SRC"
+  echo "#+END_SRC"
   echo
 }
 
@@ -94,7 +94,7 @@ untangle() {
   local files=$@
   [[ $header = true ]] && org-header
   echo "* Source         :noexport:"
-  echo
+  echo ""
   for file in $files; do
     [[ -f "$file" ]] && org-src "$file"
   done
