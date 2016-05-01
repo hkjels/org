@@ -69,6 +69,7 @@ language() {
     [sh]=shell
   )
 
+  : "${languages[$extension]:=}"
   echo ${languages["$extension"]}
 }
 
@@ -78,7 +79,7 @@ language() {
 
 org-src() {
   local filename=$(basename "$1")
-  local lang=$(language $filename)
+  local lang=$(language $filename) || ""
   echo "#BEGIN_SRC $lang :tangle $subdir$file"
   cat $file
   echo "#END_SRC"
@@ -95,7 +96,7 @@ untangle() {
   echo "* Source         :noexport:"
   echo
   for file in $files; do
-    org-src "$file"
+    [[ -f "$file" ]] && org-src "$file"
   done
 }
 
