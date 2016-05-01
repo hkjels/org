@@ -131,9 +131,9 @@ while test $# -ne 0; do
       ;;
     *)
       if [[ -n $output ]]; then
-        $(untangle $arg > $output)
+        $(untangle $* > $output)
       else
-        untangle $arg
+        untangle $*
       fi
       break;
       ;;
