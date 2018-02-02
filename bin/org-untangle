@@ -52,21 +52,50 @@ language() {
 
   declare -A languages
   languages=(
+    [adb]=ada
+    [ads]=ada
+    [agda]=agda
     [c]=c
+    [cl]=common-lisp
     [clj]=clojure
     [cljs]=clojurescript
-    [edn]=edn
-    [erlang]=erl
     [cpp]=c++
+    [cpp]=cpp
+    [cs]=csharp
     [css]=css
-    [haskell]=hs
+    [d]=d
+    [dart]=dart
+    [edn]=edn
+    [elm]=elm
+    [el]=emacs-lisp
+    [erl]=erlang
+    [exs]=elixir
+    [fr]=frege
+    [hs]=haskell
+    [idr]=idris
+    [jl]=julia
     [js]=javascript
+    [kt]=kotlin
+    [kts]=kotlin
     [less]=less
+    [lidr]=idris
+    [lua]=lua
+    [m]=matlab
     [md]=markdown
-    [python]=py
-    [ryby]=rb
+    [ml]=ocaml
+    [mli]=ocaml
+    [nim]=nim
+    [py]=python
+    [r]=r
+    [rb]=ruby
+    [rda]=r
+    [rds]=r
+    [rs]=rust
     [sass]=sass
+    [sc]=scala
+    [scala]=scala
     [sh]=shell
+    [v]=coq
   )
 
   : "${languages[$extension]:=}"
